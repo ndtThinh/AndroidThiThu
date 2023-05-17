@@ -1,11 +1,12 @@
 package com.example.androidthithu;
 
+import static android.content.ContentValues.TAG;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
@@ -23,7 +24,6 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
 
@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<Taxi> TaxiList;
     private adapter ListAdapter;
     private SqliteDB_10012002 db;
-    private ListView lstTaxi;
+    private ListView listViewTaxi;
     int SelectItemId;
     private EditText editSearch;
     private Button btnAdd;
@@ -41,42 +41,43 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        lstTaxi = findViewById(R.id.listview_taxi);
+        listViewTaxi = findViewById(R.id.listview_taxi);
         editSearch=findViewById(R.id.edit_search);
         btnAdd=findViewById(R.id.btn_add);
         TaxiList = new ArrayList<>();
         db = new SqliteDB_10012002(this, "Taxi_DB", null, 1);
 
 //        db.clearData();
-//        db.addTaxi(new Taxi(1,"17B2-65890",10.5,150,5));
-//        db.addTaxi(new Taxi(2,"19B6-12346",5.5,100,3));
-//        db.addTaxi(new Taxi(3,"18B7-12315",7,200,4));
-//        db.addTaxi(new Taxi(4,"450B7-12315",7,200,4));
-//        db.addTaxi(new Taxi(5,"dethi01",7,200,4));
+//       db.addTaxi(new Taxi("17B2-65890",10.5,150,5));
+//       db.addTaxi(new Taxi("19B6-12346",5.5,100,3));
+//        db.addTaxi(new Taxi("18B7-12315",7,200,4));
+//        db.addTaxi(new Taxi("450B7-12315",7,200,4));
+//        db.addTaxi(new Taxi("dethi01",7,200,4));
 
         TaxiList = db.getAllTaxi();
+//        Toast.makeText(this, "Số lượng phần tử: "+TaxiList.size(), Toast.LENGTH_SHORT).show();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             //sắp thêm giảm dần:   TaxiList.sort(Comparator.comparing(Taxi::getSoXe).reversed());
             TaxiList.sort(Comparator.comparing(Taxi::getSoXe)); //sắp xếp tăng dần
         }
         ListAdapter = new adapter(TaxiList, this);
-        lstTaxi.setAdapter(ListAdapter);
+        listViewTaxi.setAdapter(ListAdapter);
 
         //thêm cái này để có thể mở context menu
-        registerForContextMenu(lstTaxi);
-        lstTaxi.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+        registerForContextMenu(listViewTaxi);
+        listViewTaxi.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
                 SelectItemId = i;
-                double price=TaxiList.get(SelectItemId).getQuangDuong()*TaxiList.get(SelectItemId).getDonGia()*(100-TaxiList.get(SelectItemId).getKhuyenMai())/100;
-                int count=0;
-                for (Taxi x:TaxiList) {
-                    if(x.getQuangDuong()*x.getDonGia()*(100-x.getKhuyenMai())/100 >price){
-                        count++;
-                    }
-                }
-                String message="Nguyễn Đức Thịnh- số hóa đơn: "+count;
-                Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();
+//                double price=TaxiList.get(SelectItemId).getQuangDuong()*TaxiList.get(SelectItemId).getDonGia()*(100-TaxiList.get(SelectItemId).getKhuyenMai())/100;
+//                int count=0;
+//                for (Taxi x:TaxiList) {
+//                    if(x.getQuangDuong()*x.getDonGia()*(100-x.getKhuyenMai())/100 >price){
+//                        count++;
+//                    }
+//                }
+//                String message="Nguyễn Đức Thịnh- số hóa đơn: "+count;
+//                Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();
                 return false;
             }
         });
@@ -135,6 +136,7 @@ public class MainActivity extends AppCompatActivity {
                 bundle.putInt("DonGia", taxi.getDonGia());
                 bundle.putInt("KhuyenMai", taxi.getKhuyenMai());
                 intent.putExtras(bundle);
+                Toast.makeText(this, "id sửa: "+taxi.getMaId(), Toast.LENGTH_SHORT).show();
                 startActivityForResult(intent, 100);
                 break;
             case R.id.menu_xoa:
@@ -168,6 +170,7 @@ public class MainActivity extends AppCompatActivity {
 
         db = new SqliteDB_10012002(this, "Taxi_DB", null, 1);
 
+        //sua
         if (requestCode == 100 && resultCode == 150) {
             Bundle b = data.getExtras();
             int newId = b.getInt("Id");
@@ -181,16 +184,17 @@ public class MainActivity extends AppCompatActivity {
             TaxiList.add(SelectItemId, taxi);
             Toast.makeText(this, "Sửa thành công", Toast.LENGTH_SHORT).show();
         }
+        //them
         if(requestCode==130&& resultCode==150){
             Bundle b = data.getExtras();
             String soXe = b.getString("SoXe");
             double quangDuong = b.getDouble("QuangDuong");
             int donGia = b.getInt("DonGia");
             int khuyenMai = b.getInt("KhuyenMai");
-            Taxi taxi = new Taxi(TaxiList.size()+1, soXe, quangDuong, donGia, khuyenMai);
-            Toast.makeText(this, "id taxi moi: "+ taxi.getMaId(), Toast.LENGTH_SHORT).show();
+            Taxi taxi = new Taxi( soXe, quangDuong, donGia, khuyenMai);
             db.addTaxi(taxi);
             TaxiList.add(taxi);
+            Toast.makeText(this, "id taxi moi: "+ taxi.getMaId(), Toast.LENGTH_SHORT).show();
             Toast.makeText(this, "add successfully", Toast.LENGTH_SHORT).show();
         }
 

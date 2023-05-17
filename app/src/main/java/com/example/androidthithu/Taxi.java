@@ -18,6 +18,13 @@ public class Taxi {
     public Taxi() {
     }
 
+    public Taxi(String soXe, double quangDuong, int donGia, int khuyenMai) {
+        this.soXe = soXe;
+        this.quangDuong = quangDuong;
+        this.donGia = donGia;
+        this.khuyenMai = khuyenMai;
+    }
+
     public int getMaId() {
         return maId;
     }

@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
@@ -25,9 +26,11 @@ public class SqliteDB_10012002 extends SQLiteOpenHelper {
         super(context, name, factory, version);
     }
 
+
+
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
-        String sqlCreate="Create table if not exists "+TableName+ "("+ Id+" Integer Primary key,"
+        String sqlCreate="Create table if not exists "+TableName+ "("+ Id+" Integer Primary key AUTOINCREMENT,"
                 +CarNumber+ " Text," + Distance + " Real, "+Cost + " integer, "+Sale +" integer)";
         sqLiteDatabase.execSQL(sqlCreate);
     }
@@ -61,12 +64,15 @@ public class SqliteDB_10012002 extends SQLiteOpenHelper {
     public void addTaxi(Taxi taxi){
         SQLiteDatabase db= this.getWritableDatabase();
         ContentValues values= new ContentValues();
-        values.put(Id,taxi.getMaId());
+//        values.put(Id,taxi.getMaId());
         values.put(CarNumber,taxi.getSoXe());
         values.put(Distance,taxi.getQuangDuong());
         values.put(Cost,taxi.getDonGia());
         values.put(Sale,taxi.getKhuyenMai());
-        db.insert(TableName,null,values);
+        long id=db.insert(TableName,null,values);
+        if(id!=-1){
+            taxi.setMaId((int) id);
+        }
         db.close();
     }
 
