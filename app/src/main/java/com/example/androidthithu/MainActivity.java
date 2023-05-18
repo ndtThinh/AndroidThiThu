@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
@@ -35,6 +36,26 @@ public class MainActivity extends AppCompatActivity {
     int SelectItemId;
     private EditText editSearch;
     private Button btnAdd;
+    //thêm broadcast
+    private ConnectionReceiver connectionReceiver;
+    private IntentFilter intentFilter;
+    public void onBroadcast() {
+        connectionReceiver = new ConnectionReceiver();
+        intentFilter = new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE");
+        registerReceiver(connectionReceiver, intentFilter);
+    }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(connectionReceiver);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        registerReceiver(connectionReceiver,intentFilter );
+    }
+    //--------------end broadcast
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,9 +131,14 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(intent1,130);
             }
         });
+
+        //gọi hàm broadcast
+        onBroadcast();
         ListAdapter.notifyDataSetChanged();
 
     }
+    //het ham oncreate
+
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
